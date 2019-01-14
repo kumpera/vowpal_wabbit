@@ -28,7 +28,7 @@ size_t read_cached_simple_label(shared_data* sd, void* v, io_buf& cache)
   label_data* ld = (label_data*) v;
   char *c;
   size_t total = sizeof(ld->label)+sizeof(ld->weight)+sizeof(ld->initial);
-  if (buf_read(cache, c, total) < total)
+  if (cache.buf_read(c, total) < total)
     return 0;
   bufread_simple_label(sd, ld,c);
 

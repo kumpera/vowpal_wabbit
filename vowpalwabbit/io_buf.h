@@ -205,9 +205,10 @@ public:
   static bool is_socket(int f);
 
   void buf_write(char* &pointer, size_t n);
+  size_t buf_read(char* &pointer, size_t n);
+
 };
 
-size_t buf_read(io_buf &i, char* &pointer, size_t n);
 bool isbinary(io_buf &i);
 size_t readto(io_buf &i, char* &pointer, char terminal);
 
@@ -216,7 +217,7 @@ inline size_t bin_read_fixed(io_buf& i, char* data, size_t len, const char* read
 { if (len > 0)
   { char* p;
     // if the model is corrupt the number of bytes can be less then specified (as there isn't enought data available in the file)
-    len = buf_read(i,p,len);
+    len = i.buf_read(p,len);
 
     // compute hash for check-sum
     if (i.verify_hash)

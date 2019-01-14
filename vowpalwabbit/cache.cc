@@ -43,12 +43,12 @@ size_t read_cached_tag(io_buf& cache, example* ae)
 {
   char* c;
   size_t tag_size;
-  if (buf_read(cache, c, sizeof(tag_size)) < sizeof(tag_size))
+  if (cache.buf_read(c, sizeof(tag_size)) < sizeof(tag_size))
     return 0;
   tag_size = *(size_t*)c;
   c += sizeof(tag_size);
   cache.set(c);
-  if (buf_read(cache, c, tag_size) < tag_size)
+  if (cache.buf_read(c, tag_size) < tag_size)
     return 0;
 
   ae->tag.clear();
@@ -75,7 +75,7 @@ int read_cached_features(vw* all, v_array<example*>& examples)
     return 0;
   char* c;
   unsigned char num_indices = 0;
-  if (buf_read(*input, c, sizeof(num_indices)) < sizeof(num_indices))
+  if (input->buf_read(c, sizeof(num_indices)) < sizeof(num_indices))
     return 0;
   num_indices = *(unsigned char*)c;
   c += sizeof(num_indices);
@@ -85,7 +85,7 @@ int read_cached_features(vw* all, v_array<example*>& examples)
   {
     size_t temp;
     unsigned char index = 0;
-    if((temp = buf_read(*input,c,sizeof(index) + sizeof(size_t))) < sizeof(index) + sizeof(size_t))
+    if((temp = input->buf_read(c,sizeof(index) + sizeof(size_t))) < sizeof(index) + sizeof(size_t))
     {
       all->trace_message << "truncated example! " << temp << " " << char_size + sizeof(size_t) << endl;
       return 0;
@@ -99,7 +99,7 @@ int read_cached_features(vw* all, v_array<example*>& examples)
     c += sizeof(size_t);
     all->p->input->set(c);
     total += storage;
-    if (buf_read(*input,c,storage) < storage)
+    if (input->buf_read(c,storage) < storage)
     {
       all->trace_message << "truncated example! wanted: " << storage << " bytes" << endl;
       return 0;
