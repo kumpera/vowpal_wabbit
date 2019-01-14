@@ -976,12 +976,12 @@ void save_load_regularizer(vw& all, bfgs& b, io_buf& model_file, bool read, bool
     if (read)
     {
       c++;
-      brw = bin_read_fixed(model_file, (char*)&i, sizeof(i),"");
+      brw = model_file.bin_read_fixed((char*)&i, sizeof(i),"");
       if (brw > 0)
       {
         assert (i< length);
         v = &(b.regularizers[i]);
-        brw += bin_read_fixed(model_file, (char*)v, sizeof(*v), "");
+        brw += model_file.bin_read_fixed((char*)v, sizeof(*v), "");
       }
     }
     else // write binary or text

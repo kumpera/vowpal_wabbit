@@ -710,17 +710,17 @@ void save_load_regressor(vw& all, io_buf& model_file, bool read, bool text, T& w
       brw = 1;
       if (all.num_bits < 31)//backwards compatible
       {
-        brw = bin_read_fixed(model_file, (char*)&old_i, sizeof(old_i), "");
+        brw = model_file.bin_read_fixed((char*)&old_i, sizeof(old_i), "");
         i = old_i;
       }
       else
-        brw = bin_read_fixed(model_file, (char*)&i, sizeof(i), "");
+        brw = model_file.bin_read_fixed((char*)&i, sizeof(i), "");
       if (brw > 0)
       {
         if (i >= length)
           THROW("Model content is corrupted, weight vector index " << i << " must be less than total vector length " << length);
         weight* v = &weights.strided_index(i);
-        brw += bin_read_fixed(model_file, (char*)&(*v), sizeof(*v), "");
+        brw += model_file.bin_read_fixed((char*)&(*v), sizeof(*v), "");
       }
     }
     while (brw >0);
@@ -769,22 +769,22 @@ void save_load_online_state(vw& all, io_buf& model_file, bool read, bool text, g
       brw = 1;
       if (all.num_bits < 31)//backwards compatible
       {
-        brw = bin_read_fixed(model_file, (char*)&old_i, sizeof(old_i), "");
+        brw = model_file.bin_read_fixed((char*)&old_i, sizeof(old_i), "");
         i = old_i;
       }
       else
-        brw = bin_read_fixed(model_file, (char*)&i, sizeof(i), "");
+        brw = model_file.bin_read_fixed((char*)&i, sizeof(i), "");
       if (brw > 0)
       {
         if (i >= length)
           THROW("Model content is corrupted, weight vector index " << i << " must be less than total vector length " << length);
         weight buff[4] = {0,0,0,0};
         if (g == NULL || (!g->adaptive && !g->normalized))
-          brw += bin_read_fixed(model_file, (char*)buff, sizeof(buff[0]), "");
+          brw += model_file.bin_read_fixed((char*)buff, sizeof(buff[0]), "");
         else if ((g->adaptive && !g->normalized) || (!g->adaptive && g->normalized))
-          brw += bin_read_fixed(model_file, (char*)buff, sizeof(buff[0]) * 2, "");
+          brw += model_file.bin_read_fixed((char*)buff, sizeof(buff[0]) * 2, "");
         else //adaptive and normalized
-          brw += bin_read_fixed(model_file, (char*)buff, sizeof(buff[0]) * 3, "");
+          brw += model_file.bin_read_fixed((char*)buff, sizeof(buff[0]) * 3, "");
         uint32_t stride = 1 << weights.stride_shift();
         weight* v = &weights.strided_index(i);
         for (size_t i = 0; i < stride; i++)

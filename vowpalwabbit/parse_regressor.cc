@@ -456,11 +456,11 @@ void save_load_header(vw& all, io_buf& model_file, bool read, bool text)
       if (read)
       {
         uint32_t len;
-        size_t ret = bin_read_fixed(model_file, (char*)&len, sizeof(len), "");
+        size_t ret = model_file.bin_read_fixed((char*)&len, sizeof(len), "");
         if (len > 104857600 /*sanity check: 100 Mb*/ || ret < sizeof(uint32_t))
           THROW("bad model format!");
         resize_buf_if_needed(buff2, buf2_size, len);
-        bytes_read_write += bin_read_fixed(model_file, buff2, len, "") + ret;
+        bytes_read_write += model_file.bin_read_fixed(buff2, len, "") + ret;
         all.opts_n_args.file_options->str(buff2);
       }
       else
