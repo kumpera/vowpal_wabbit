@@ -70,7 +70,7 @@ void cache_label(void* v, io_buf& cache)
 {
   char *c;
   CB::label* ld = (CB::label*) v;
-  buf_write(cache, c, sizeof(size_t)+sizeof(cb_class)*ld->costs.size());
+  cache.buf_write(c, sizeof(size_t)+sizeof(cb_class)*ld->costs.size());
   bufcache_label(ld,c);
 }
 
@@ -237,7 +237,7 @@ void cache_label(void* v, io_buf& cache)
 {
   char *c;
   CB_EVAL::label* ld = (CB_EVAL::label*) v;
-  buf_write(cache, c, sizeof(uint32_t));
+  cache.buf_write(c, sizeof(uint32_t));
   *(uint32_t *)c = ld->action;
 
   CB::cache_label(&(ld->event), cache);

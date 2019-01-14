@@ -145,7 +145,7 @@ void output_byte(io_buf& cache, unsigned char s)
 {
   char *c;
 
-  buf_write(cache, c, 1);
+  cache.buf_write(c, 1);
   *(c++) = s;
   cache.set(c);
 }
@@ -158,7 +158,7 @@ void output_features(io_buf& cache, unsigned char index, features& fs, uint64_t 
     if (f != 1. && f != -1.)
       storage += sizeof(feature_value);
 
-  buf_write(cache, c, sizeof(index) + storage + sizeof(size_t));
+  cache.buf_write(c, sizeof(index) + storage + sizeof(size_t));
   *reinterpret_cast<unsigned char*>(c) = index;
   c += sizeof(index);
 
@@ -192,7 +192,7 @@ void output_features(io_buf& cache, unsigned char index, features& fs, uint64_t 
 void cache_tag(io_buf& cache, v_array<char> tag)
 {
   char *c;
-  buf_write(cache, c, sizeof(size_t)+tag.size());
+  cache.buf_write(c, sizeof(size_t)+tag.size());
   *(size_t*)c = tag.size();
   c += sizeof(size_t);
   memcpy(c, tag.begin(), tag.size());

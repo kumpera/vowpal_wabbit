@@ -92,25 +92,25 @@ size_t readto(io_buf &i, char* &pointer, char terminal)
   }
 }
 
-void buf_write(io_buf &o, char* &pointer, size_t n)
+void io_buf::buf_write(char* &pointer, size_t n)
 {
   //return a pointer to the next n bytes to write into.
-  if (o.head + n <= o.space.end_array)
+  if (head + n <= space.end_array)
   {
-    pointer = o.head;
-    o.head += n;
+    pointer = head;
+    head += n;
   }
   else // Time to dump the file
   {
-    if (o.head != o.space.begin())
-      o.flush();
+    if (head != space.begin())
+      flush();
     else // Array is short, so increase size.
     {
-      o.space.resize(2*(o.space.end_array - o.space.begin()));
-      o.space.end() = o.space.begin();
-      o.head = o.space.begin();
+      space.resize(2*(space.end_array - space.begin()));
+      space.end() = space.begin();
+      head = space.begin();
     }
-    buf_write (o, pointer,n);
+    buf_write (pointer, n);
   }
 }
 

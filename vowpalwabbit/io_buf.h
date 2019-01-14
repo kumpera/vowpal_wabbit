@@ -203,9 +203,10 @@ public:
   }
 
   static bool is_socket(int f);
+
+  void buf_write(char* &pointer, size_t n);
 };
 
-void buf_write(io_buf &o, char* &pointer, size_t n);
 size_t buf_read(io_buf &i, char* &pointer, size_t n);
 bool isbinary(io_buf &i);
 size_t readto(io_buf &i, char* &pointer, char terminal);
@@ -244,7 +245,7 @@ inline size_t bin_read(io_buf& i, char* data, size_t len, const char* read_messa
 inline size_t bin_write_fixed(io_buf& o, const char* data, size_t len)
 { if (len > 0)
   { char* p;
-    buf_write (o, p, len);
+    o.buf_write (p, len);
 
 	memcpy (p, data, len);
 

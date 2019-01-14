@@ -61,7 +61,7 @@ void cache_label(void* v, io_buf& cache)
 {
   char *c;
   labels* ld = (labels*) v;
-  buf_write(cache, c, sizeof(size_t)+sizeof(uint32_t)*ld->label_v.size());
+  cache.buf_write(c, sizeof(size_t)+sizeof(uint32_t)*ld->label_v.size());
   bufcache_label(ld,c);
 }
 
