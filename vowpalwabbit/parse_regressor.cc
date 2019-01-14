@@ -200,7 +200,7 @@ void save_load_header(vw& all, io_buf& model_file, bool read, bool text)
       VW::validate_version(all);
 
       if (all.model_file_ver >= VERSION_FILE_WITH_HEADER_CHAINED_HASH)
-        model_file.verify_hash = true;
+        model_file.verify_hash(true);
 
       if (all.model_file_ver >= VERSION_FILE_WITH_HEADER_ID)
       {
@@ -483,7 +483,7 @@ void save_load_header(vw& all, io_buf& model_file, bool read, bool text)
       if (all.model_file_ver >= VERSION_FILE_WITH_HEADER_HASH)
       {
         uint32_t check_sum = (all.model_file_ver >= VERSION_FILE_WITH_HEADER_CHAINED_HASH) ?
-                             model_file.hash :
+                             model_file.hash() :
                              (uint32_t)uniform_hash(model_file.space.begin(), bytes_read_write, 0);
 
         uint32_t check_sum_saved = check_sum;
@@ -498,11 +498,7 @@ void save_load_header(vw& all, io_buf& model_file, bool read, bool text)
 
       if (all.model_file_ver >= VERSION_FILE_WITH_HEADER_CHAINED_HASH)
       {
-        model_file.verify_hash = false;
-
-        // reset the hash so that the io_buf can be re-used for loading
-        // as it is done for Reload()
-        model_file.hash = 0;
+        model_file.verify_hash(false);
       }
     }
   }

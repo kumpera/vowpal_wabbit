@@ -52,6 +52,10 @@ license as described in the file LICENSE.
 
 class io_buf
 {
+  // used to check-sum i/o files for corruption detection
+  bool _verify_hash;
+  uint32_t _hash;
+
 public:
   v_array<char> space; //space.begin = beginning of loaded values.  space.end = end of read or written values from/to the buffer.
   v_array<int> files;
@@ -60,10 +64,6 @@ public:
   char* head;
   v_array<char> currentname;
   v_array<char> finalname;
-
-  // used to check-sum i/o files for corruption detection
-  bool verify_hash;
-  uint32_t hash;
 
   static const int READ = 1;
   static const int WRITE = 2;
@@ -78,8 +78,22 @@ public:
     current = 0;
     count = 0;
     head = space.begin();
-    verify_hash = false;
-    hash = 0;
+    _verify_hash = false;
+    _hash = 0;
+  }
+
+  void verify_hash(bool verify) {
+    _verify_hash = verify;
+    // reset the hash so that the io_buf can be re-used for loading
+    // as it is done for Reload()
+    if(!verify)
+      _hash = 0;
+  }
+
+  uint32_t hash() {
+    if (!_verify_hash)
+      THROW("HASH WAS NOT CALCULATED");
+    return _hash;
   }
 
   virtual int open_file(const char* name, bool stdin_off, int flag=READ)
@@ -215,8 +229,8 @@ public:
       len = buf_read(p,len);
 
       // compute hash for check-sum
-      if (verify_hash)
-        hash = (uint32_t)uniform_hash(p, len, hash);
+      if (_verify_hash)
+        _hash = (uint32_t)uniform_hash(p, len, _hash);
 
       if (*read_message == '\0')
         memcpy(data,p,len);
@@ -235,9 +249,8 @@ public:
     memcpy (p, data, len);
 
       // compute hash for check-sum
-      if (verify_hash)
-      { hash = (uint32_t)uniform_hash(p, len, hash);
-      }
+      if (_verify_hash)
+        _hash = (uint32_t)uniform_hash(p, len, _hash);
     }
     return len;
   }
