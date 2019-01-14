@@ -332,7 +332,7 @@ void finish(boosting& o)
   o.alpha.~vector();
 }
 
-void return_example(vw& all, boosting& a, example& ec)
+void return_example(vw& all, boosting& a G_GNUC_UNUSED, example& ec)
 {
   output_and_account_example(all, ec);
   VW::finish_example(all,ec);

@@ -11,6 +11,7 @@
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
+#include "compiler.h"
 #include "array_parameters_dense.h"
 
 class sparse_parameters;
@@ -174,7 +175,7 @@ public:
   }
 
 #ifndef _WIN32
-	void share(size_t length)
+	void share(size_t length G_GNUC_UNUSED)
 	{throw 1; //TODO: add better exceptions
 	}
 #endif

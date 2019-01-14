@@ -30,6 +30,7 @@ namespace po = boost::program_options;
 #include "crossplat_compat.h"
 #include "error_reporting.h"
 #include "parser_helper.h"
+#include "compiler.h"
 
 struct version_struct
 { int32_t major;
@@ -137,7 +138,7 @@ struct dictionary_info
   feature_dict* dict;
 };
 
-inline void deleter(substring ss, uint64_t label)
+inline void deleter(substring ss, uint64_t label G_GNUC_UNUSED)
 { free_it(ss.begin); }
 
 class namedlabels

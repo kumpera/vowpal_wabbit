@@ -549,7 +549,7 @@ float get_pred_per_update(gd& g, example& ec)
 
   if (grad_squared == 0 && !stateless) return 1.;
 
-  norm_data nd = {grad_squared, 0., 0., {g.neg_power_t, g.neg_norm_power}};
+  norm_data nd = {grad_squared, 0., 0., {g.neg_power_t, g.neg_norm_power}, { 0 }};
   foreach_feature<norm_data,pred_per_update_feature<sqrt_rate, feature_mask_off, adaptive, normalized, spare, stateless> >(all, ec, nd);
   if(normalized)
   {
@@ -580,7 +580,7 @@ float sensitivity(gd& g, example& ec)
 }
 
 template<size_t adaptive>
-float get_scale(gd& g, example& ec, float weight)
+float get_scale(gd& g, example& ec G_GNUC_UNUSED, float weight)
 {
   float update_scale = g.all->eta * weight;
   if(!adaptive)
@@ -592,7 +592,7 @@ float get_scale(gd& g, example& ec, float weight)
 }
 
 template<bool sqrt_rate, bool feature_mask_off, bool adax, size_t adaptive, size_t normalized, size_t spare>
-float sensitivity(gd& g, base_learner& base, example& ec)
+float sensitivity(gd& g, base_learner& base G_GNUC_UNUSED, example& ec)
 {
   return get_scale<adaptive>(g, ec, 1.)
          * sensitivity<sqrt_rate, feature_mask_off, adax, adaptive, normalized, spare, true>(g,ec);
@@ -942,7 +942,7 @@ void save_load_online_state(vw& all, io_buf& model_file, bool read, bool text, g
 template<class T> class set_initial_gd_wrapper
 {
 public:
-  static void func(weight& w, pair<float,float>& initial, uint64_t index)
+  static void func(weight& w, pair<float,float>& initial, uint64_t index G_GNUC_UNUSED)
   {
     w = initial.first;
     (&w)[1] = initial.second;

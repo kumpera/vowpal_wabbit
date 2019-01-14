@@ -82,6 +82,7 @@ class arguments {
                         po::value(&store)->default_value(def)
                         ->notifier([this, option, def] (T arg)
                                    {
+                                     UNUSED_VAR(def);
                                      *this->file_options << " --" << long_only(option) << " " << arg;
                                    }),
                         description);

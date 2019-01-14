@@ -28,7 +28,7 @@ using namespace std;
 template <class T> class set_initial_wrapper
 {
 public:
-  static void func(weight& w, float& initial, uint64_t index) { w = initial; }
+  static void func(weight& w, float& initial, uint64_t index G_GNUC_UNUSED) { w = initial; }
 };
 
 template <class T> class random_positive_wrapper
@@ -76,10 +76,10 @@ template<class T> void truncate(vw& all,T& weights)
   });
 }
 
-template<class T> double calculate_sd(vw& all,T& weights)
+template<class T> double calculate_sd(vw& all G_GNUC_UNUSED,T& weights)
 {
   static int my_size = 0;
-  for_each(weights.begin(), weights.end(), [](float v) {my_size += 1;});
+  for_each(weights.begin(), weights.end(), [](float v G_GNUC_UNUSED) {my_size += 1;});
   double sum = accumulate(weights.begin(), weights.end(), 0.0);
   double mean = sum / my_size;
   vector<double> diff(my_size);
