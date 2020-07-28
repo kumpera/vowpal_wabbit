@@ -4,6 +4,7 @@
 #include "../vowpalwabbit/slim/include/vw_slim_predict.h"
 
 #include <emscripten/bind.h>
+#include <stdlib.h>
 
 using namespace emscripten;
 
@@ -21,8 +22,11 @@ void push_feature_string(vw_slim::example_predict_builder& arr, const std::strin
     arr.push_feature_string((char*)feature_idx.c_str(), value);
 }
 
-void load_model(vw_slim::vw_predict<dense_parameters>& vw, const std::vector<char>& bytes) {
-  vw.load(bytes.data(), bytes.size());
+int load_model(vw_slim::vw_predict<dense_parameters>& vw, size_t _bytes, int size) {
+  char *bytes = (char*)_bytes;
+  int res = vw.load(bytes, size);
+  free(bytes);
+  return res;
 }
 
 struct predict_results
@@ -53,9 +57,13 @@ struct action_list
 predict_results predict(vw_slim::vw_predict<dense_parameters>& vw, const std::string& event_id, example_predict* shared, const action_list& actions)
 {
   predict_results results;
-  vw.predict(event_id.c_str(), *shared, (example_predict*)actions.actions.data(), actions.actions.size(), results.pdf, results.ranking);
+  printf("event %s shared %p actions %lu\n", event_id.c_str(), shared, actions.actions.size());
+  int res = vw.predict(event_id.c_str(), *shared, (example_predict*)actions.actions.data(), actions.actions.size(), results.pdf, results.ranking);
+  printf("got %lu pdf and %lu ranking => %d\n", results.pdf.size(), results.ranking.size(), res);
+  printf("r: %d %d %d %d %d\n", results.ranking[0], results.ranking[1], results.ranking[2], results.ranking[3], results.ranking[4]);
   return results;
 }
+
 
 EMSCRIPTEN_BINDINGS(vw) {
 
@@ -71,7 +79,7 @@ EMSCRIPTEN_BINDINGS(vw) {
 
   class_<vw_slim::vw_predict<dense_parameters>>("vw_predict")
     .constructor<>()
-    .function("load_model", &load_model)
+    .function("load_model", &load_model, allow_raw_pointers())
     .function("predict", &predict, allow_raw_pointers());
 
   class_<predict_results>("predict_results")
