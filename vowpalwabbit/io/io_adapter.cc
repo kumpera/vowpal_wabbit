@@ -142,6 +142,11 @@ std::unique_ptr<reader> open_file_reader(const std::string& file_path)
   return std::unique_ptr<reader>(new file_adapter(file_path.c_str(), file_mode::read));
 }
 
+std::unique_ptr<reader> open_file_reader(const std::string& file_path, xxxx the_callback)
+{
+  return std::unique_ptr<reader>(new file_adapter(file_path.c_str(), file_mode::read));
+}
+
 std::unique_ptr<writer> open_compressed_file_writer(const std::string& file_path)
 {
   return std::unique_ptr<writer>(new gzip_file_adapter(file_path.c_str(), file_mode::write));

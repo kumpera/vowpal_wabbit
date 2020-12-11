@@ -46,10 +46,13 @@ class io_buf
   v_array<char> space;  // space.begin = beginning of loaded values.  space.end = end of read or written values from/to
                         // the buffer.
 
-public:
+  size_t current;  // file descriptor currently being used.
   std::vector<std::unique_ptr<VW::io::reader>> input_files;
   std::vector<std::unique_ptr<VW::io::writer>> output_files;
-  size_t current;  // file descriptor currently being used.
+
+public:
+  using input_list_t = std::vector<std::unique_ptr<VW::io::reader>>;
+  using output_list_t = std::vector<std::unique_ptr<VW::io::writer>>;
 
   io_buf(io_buf& other) = delete;
   io_buf& operator=(io_buf& other) = delete;
@@ -90,11 +93,15 @@ public:
     head = space.begin();
   }
 
-  void reset_file(VW::io::reader* f)
-  {
-    f->reset();
-    reset_buffer();
-  }
+  // void reset_file(VW::io::reader* f)
+  // {
+  //   f->reset();
+  //   reset_buffer();
+  // }
+
+  void reset_all_files();
+  inline input_list_t::iterator input_begin() { return input_files.begin(); }
+  inline input_list_t::iterator input_end() { return input_files.end(); }
 
   io_buf() : _verify_hash{false}, _hash{0}, current{0}
   {
@@ -231,6 +238,7 @@ public:
   size_t copy_to(void* dst, size_t max_size);
   void replace_buffer(char* buf, size_t capacity);
   char* buffer_start() { return space.begin(); }  // This should be replaced with slicing.
+  void reset_current_file() { current = 0; }
 };
 
 inline size_t bin_read(io_buf& i, char* data, size_t len, const char* read_message)

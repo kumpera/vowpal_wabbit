@@ -167,7 +167,7 @@ void set_daemon_reader(vw& all, bool json = false, bool dsjson = false)
 void reset_source(vw& all, size_t numbits)
 {
   io_buf* input = all.example_parser->input;
-  input->current = 0;
+  input->reset_current_file();
 
   // If in write cache mode then close all of the input files then open the written cache as the new input.
   if (all.example_parser->write_cache)
@@ -225,11 +225,12 @@ void reset_source(vw& all, size_t numbits)
     }
     else
     {
-      for (auto& file : input->input_files)
-      {
-        input->reset_file(file.get());
-        if (cache_numbits(input, file.get()) < numbits) THROW("argh, a bug in caching of some sort!");
-      }
+      input->reset_all_files();
+      // for (auto& file : input->input_files)
+      // {
+      //   input->reset_file(file.get());
+      //   if (cache_numbits(input, file.get()) < numbits) THROW("argh, a bug in caching of some sort!");
+      // }
     }
   }
 }
@@ -275,22 +276,29 @@ void parse_cache(vw& all, std::vector<std::string> cache_files, bool kill_cache,
 
   for (auto& file : cache_files)
   {
-    bool cache_file_opened = false;
+    VW::io::reader* reader = nullptr;
     if (!kill_cache) try
       {
-        all.example_parser->input->add_file(VW::io::open_file_reader(file));
-        cache_file_opened = true;
+        auto &input = all.example_parser->input;
+        auto the_numbits = all.num_bits;
+        //the callback for reseting
+        auto the_reader = VW::io::open_file_reader(file, [input, the_numbits] (VW::io::reader& reader) {
+          uint64_t c = cache_numbits(input, &reader);
+          return c >= the_numbits; //it's a good reader
+
+        });
+        reader = the_reader.get();
+        all.example_parser->input->add_file(std::move(the_reader));
       }
       catch (const std::exception&)
       {
-        cache_file_opened = false;
       }
-    if (cache_file_opened == false)
+    if (reader == nullptr)
       make_write_cache(all, file, quiet);
     else
     {
-      uint64_t c = cache_numbits(all.example_parser->input, all.example_parser->input->input_files.back().get());
-      if (c < all.num_bits)
+      // uint64_t c = cache_numbits(all.example_parser->input, reader);
+      if (!reader->reset(all.example_parser->input))
       {
         if (!quiet)
           all.trace_message << "WARNING: cache file is ignored as it's made with less bit precision than required!"
@@ -325,7 +333,7 @@ void parse_cache(vw& all, std::vector<std::string> cache_files, bool kill_cache,
 
 void enable_sources(vw& all, bool quiet, size_t passes, input_options& input_options)
 {
-  all.example_parser->input->current = 0;
+  all.example_parser->input->reset_current_file();
   parse_cache(all, input_options.cache_files, input_options.kill_cache, quiet);
 
   // default text reader
